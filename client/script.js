@@ -26,7 +26,7 @@ function validateField(field) {
       } else if (value.length > 25) {
         nameValid = false;
         validationMessage =
-          "Fältet 'Namn' får inte innehålla mer än 100 tecken.";
+          "Fältet 'Namn' får inte innehålla mer än 25 tecken.";
       } else {
         nameValid = true;
       }
