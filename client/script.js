@@ -1,152 +1,130 @@
+listForm.name.addEventListener('keyup', (e) => validateField(e.target));
+listForm.name.addEventListener('blur', (e) => validateField(e.target));
 
-todoForm.title.addEventListener('keyup', (e) => validateField(e.target));
-todoForm.title.addEventListener('blur', (e) => validateField(e.target));
-todoForm.description.addEventListener('input', (e) => validateField(e.target));
-todoForm.description.addEventListener('blur', (e) => validateField(e.target));
+listForm.year.addEventListener('input', (e) => validateField(e.target));
+listForm.year.addEventListener('blur', (e) => validateField(e.target));
 
-todoForm.dueDate.addEventListener('input', (e) => validateField(e.target));
-todoForm.dueDate.addEventListener('blur', (e) => validateField(e.target));
+listForm.director.addEventListener('input', (e) => validateField(e.target));
+listForm.director.addEventListener('blur', (e) => validateField(e.target));
 
+listForm.addEventListener('submit', onSubmit);
+const packingListElement = document.getElementById('packingList');
 
-todoForm.addEventListener('submit', onSubmit);
-
-const todoListElement = document.getElementById('todoList');
-
-let titleValid = true;
-let descriptionValid = true;
-let dueDateValid = true;
-
+let nameValid = true;
+let yearValid = true;
+let directorValid = true;
 
 
 const api = new Api('http://localhost:5000/tasks');
 
-
 function validateField(field) {
-
   const { name, value } = field;
-
   let = validationMessage = '';
   switch (name) {
-
-    case 'title': {
+    case 'name': {
       if (value.length < 2) {
-        titleValid = false;
-        validationMessage = "Fältet 'Titel' måste innehålla minst 2 tecken.";
+        nameValid = false;
+        validationMessage = "Fältet 'Namn' måste innehålla minst 2 tecken.";
       } else if (value.length > 100) {
-        titleValid = false;
+        nameValid = false;
         validationMessage =
-          "Fältet 'Titel' får inte innehålla mer än 100 tecken.";
+          "Fältet 'Namn' får inte innehålla mer än 100 tecken.";
       } else {
-        titleValid = true;
+        nameValid = true;
       }
       break;
     }
-    case 'description': {
-      if (value.length > 500) {
-        descriptionValid = false;
-        validationMessage =
-          "Fältet 'Beskrvining' får inte innehålla mer än 500 tecken.";
+    case 'year': {
+      if (value.length != 4) {
+        yearValid = false;
+        validationMessage = "Fältet 'Utgivningsår' måste innehålla 4 tecken.";
       } else {
-        descriptionValid = true;
+        yearValid = true;
       }
       break;
     }
-    case 'dueDate': {
-      if (value.length === 0) {
-        dueDateValid = false;
-        validationMessage = "Fältet 'Slutförd senast' är obligatorisk.";
+    case 'director': {
+      if (value.length < 2) {
+        directorValid = false;
+        validationMessage = "Fältet 'Regissör' måste innehålla minst 2 tecken.";
+      } else if (value.length > 20) {
+        directorValid = false;
+        validationMessage =
+          "Fältet 'Regissör' får inte innehålla mer än 20 tecken.";
       } else {
-        dueDateValid = true;
+        directorValid = true;
       }
       break;
     }
   }
-
   
- 
-
   field.previousElementSibling.innerText = validationMessage;
   field.previousElementSibling.classList.remove('hidden');
 }
 
+
+
 function onSubmit(e) {
   e.preventDefault();
-  if (titleValid && descriptionValid && dueDateValid) {
-    console.log('Submit');
 
-    saveTask();
+  if (nameValid && yearValid && directorValid) {
+    console.log('Submit');
+    saveFilm();
   }
 }
 
-function saveTask() {
-  const task = {
-    title: todoForm.title.value,
-    description: todoForm.description.value,
-    dueDate: todoForm.dueDate.value,
-    completed: false
+
+function saveFilm() {
+  const film = {
+    name: listForm.name.value,
+    year: listForm.year.value,
+    director: listForm.director.value,
   };
-
-
-
+   
+api.create(film).then((film) => {
   
-
-
-  api.create(task).then((task) => {
-    if (task) {
+  if (film) {
       renderList();
     }
   });
+
+  listForm.name.value="" ;
+  listForm.year.value="" ;
+  listForm.director.value="";
 }
 
 function renderList() {
   console.log('rendering');
+  api.getAll().then((films) => {
+    packingListElement.innerHTML = '';
 
-  api.getAll().then((tasks) => {
-
-
-    if (tasks && tasks.length > 0) {
-      tasks.forEach((task) => {
-     
-        todoListElement.insertAdjacentHTML('beforeend', renderTask(task));
+    if (films && films.length > 0) {
+      films.forEach((film) => {
+        packingListElement.insertAdjacentHTML('beforeend', renderFilm(film));
       });
     }
   });
 }
 
 
-function renderTask({ id, title, description, dueDate }) {
-
- 
-
-  
-  let html = `
-    <li class="select-none mt-2 py-2 border-b border-amber-300">
-      <div class="flex items-center">
-        <h3 class="mb-3 flex-1 text-xl font-bold text-pink-800 uppercase">${title}</h3>
-        <div>
-          <span>${dueDate}</span>
-          <button onclick="deleteTask(${id})" class="inline-block bg-amber-500 text-xs text-amber-900 border border-white px-3 py-1 rounded-md ml-2">Ta bort</button>
-        </div>
-      </div>`;
-
-
-  description &&
-
-    (html += `
-      <p class="ml-8 mt-2 text-xs italic">${description}</p>
-  `);
-
-  html += `
-    </li>`;
-  return html;
+function renderFilm({ id, name, year, director}) {
+let html = `
+<li class="flex select-none mt-2 pt-4 border-b bg-white/90 rounded-lg">
+  <div class="flex justify-between w-5/6">
+    <p class="mb-6 ml-8 mr-30 w-1/3">${name}</p><p class=" mb-6 ml-8 w-1/3">${year}</p> <p class="mb-6 ml-8 w-1/3">${director}</p>
+  </div>
+  <div>
+  <button onclick="deleteFilm(${id})" class="inline-block ml-10 rounded-md bg-yellow-500 hover:bg-yellow-400 px-4 py-1">Ta bort</button>
+</div>`;
+return html;
 }
 
-function deleteTask(id) {
 
-  api.remove(id).then((result) => {
-
+function deleteFilm(id) {
+  api.remove(id).then(() => {
     renderList();
   });
 }
+
 
 renderList();
