@@ -16,12 +16,12 @@ app
 
 
 
-app.get('/tasks', async (req, res) => {
+app.get('/tasks', async (req, res) => { /* Lyssnar efter ett Get anrop */
   try {
-    const tasks = await fs.readFile('./tasks.json');
-    res.send(JSON.parse(tasks));
+    const tasks = await fs.readFile('./tasks.json'); /* läser innehållet i tasks.json*/
+    res.send(JSON.parse(tasks)); /* Skickar innehåller i tasks.json till klienten*/
   } catch (error) {
-    res.status(500).send({ error });
+    res.status(500).send({ error }); /* Skickar error message ifall det blir ett fel med servern */
   }
 });
 
@@ -29,11 +29,11 @@ app.get('/tasks', async (req, res) => {
 
 app.post('/tasks', async (req, res) => {
   try {
-    const task = req.body;
+    const task = req.body; /* Läser av innehållet i den request som har skickats (Det vi vill spara)*/ 
     const listBuffer = await fs.readFile('./tasks.json');
     const currentTasks = JSON.parse(listBuffer);
-        
-    let maxTaskId = 1;
+    /* Parsar Json innehållet*/    
+    let maxTaskId = 1; /*Säger ID på tasken */
     if (currentTasks && currentTasks.length > 0) {
       maxTaskId = currentTasks.reduce(
         (maxId, currentElement) =>
