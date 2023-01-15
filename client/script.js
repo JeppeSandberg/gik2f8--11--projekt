@@ -70,7 +70,6 @@ function validateField(field) {
 }
 
 function onSubmit(e) {
-
   e.preventDefault();
   if (titleValid && descriptionValid && dueDateValid) {
     console.log('Submit');
